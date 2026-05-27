@@ -25,6 +25,10 @@ MUTED  = colors.HexColor("#9A9488")
 GREEN  = colors.HexColor("#4CAF7D")
 RED    = colors.HexColor("#E05C5C")
 WHITE  = colors.white
+INK    = colors.HexColor("#2F2A24")
+LABEL  = colors.HexColor("#6F675C")
+SUBTLE = colors.HexColor("#59524A")
+RULE   = colors.HexColor("#D8CEC0")
 
 W, H = A4   # 595.28 × 841.89 pts
 
@@ -53,7 +57,7 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
         canvas.setFillColor(GOLD)
         canvas.drawCentredString(W/2, H - 22*mm, "✦  SKINSENSE AI")
         canvas.setFont("Helvetica", 8)
-        canvas.setFillColor(MUTED)
+        canvas.setFillColor(SUBTLE)
         canvas.drawCentredString(W/2, H - 30*mm, "PERSONALISED SKIN ANALYSIS REPORT")
         canvas.setFont("Helvetica", 8)
         canvas.drawCentredString(W/2, H - 38*mm,
@@ -91,7 +95,7 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
 
     top_table = Table(
         [[img_cell,
-          Paragraph(f'<font color="#C8A96E" size="36"><b>{score}</b></font>/10', _style("sc", alignment=TA_CENTER)),
+          Paragraph(f'<font color="#C8A96E" size="36"><b>{score}</b></font><font color="#9A9488" size="9">/10</font>', _style("sc", alignment=TA_CENTER)),
           Paragraph(f'<font color="#F5F0E8" size="16"><b>{skin_type}</b></font><br/>'
                     f'<font color="#9A9488" size="9">{detail}</font>',
                     _style("st", alignment=TA_LEFT, leading=16))
@@ -116,7 +120,7 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
     # ── Section helper ────────────────────────────────────────
     def section_title(text, color=GOLD):
         story.append(Spacer(1, 4*mm))
-        story.append(HRFlowable(width="100%", thickness=0.5, color=MID))
+        story.append(HRFlowable(width="100%", thickness=0.8, color=RULE))
         story.append(Spacer(1, 2*mm))
         story.append(Paragraph(
             f'<font color="{color.hexval() if hasattr(color,"hexval") else "#C8A96E"}" size="8"><b>{text}</b></font>',
@@ -127,12 +131,12 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
         t = Table(rows, colWidths=col_w)
         t.setStyle(TableStyle([
             ("FONTNAME",    (0,0), (0,-1), "Helvetica-Bold"),
-            ("FONTSIZE",    (0,0), (-1,-1), 9),
-            ("TEXTCOLOR",   (0,0), (0,-1), MUTED),
-            ("TEXTCOLOR",   (1,0), (1,-1), LIGHT),
+            ("FONTSIZE",    (0,0), (-1,-1), 9.5),
+            ("TEXTCOLOR",   (0,0), (0,-1), LABEL),
+            ("TEXTCOLOR",   (1,0), (1,-1), INK),
             ("VALIGN",      (0,0), (-1,-1), "TOP"),
-            ("TOPPADDING",  (0,0), (-1,-1), 3),
-            ("BOTTOMPADDING",(0,0),(-1,-1), 3),
+            ("TOPPADDING",  (0,0), (-1,-1), 4),
+            ("BOTTOMPADDING",(0,0),(-1,-1), 4),
         ]))
         return t
 
@@ -162,11 +166,12 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
         c_rows = [[c.get("name",""), c.get("severity","")] for c in concerns]
         t = Table(c_rows, colWidths=[None, 40*mm])
         t.setStyle(TableStyle([
-            ("FONTSIZE",  (0,0),(-1,-1), 9),
-            ("TEXTCOLOR", (0,0),(0,-1), LIGHT),
+            ("FONTSIZE",  (0,0),(-1,-1), 9.5),
+            ("TEXTCOLOR", (0,0),(0,-1), INK),
             ("TEXTCOLOR", (1,0),(1,-1), GOLD),
             ("FONTNAME",  (1,0),(1,-1), "Helvetica-Bold"),
-            ("TOPPADDING",(0,0),(-1,-1), 2),
+            ("TOPPADDING",(0,0),(-1,-1), 4),
+            ("BOTTOMPADDING",(0,0),(-1,-1), 4),
         ]))
         story.append(t)
 
@@ -187,13 +192,13 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
         r_rows.append([label, item.get("product","—"), item.get("note","—")])
     rt = Table(r_rows, colWidths=[36*mm, 70*mm, None])
     rt.setStyle(TableStyle([
-        ("FONTSIZE",     (0,0),(-1,-1), 9),
+        ("FONTSIZE",     (0,0),(-1,-1), 9.5),
         ("FONTNAME",     (0,0),(0,-1), "Helvetica-Bold"),
         ("TEXTCOLOR",    (0,0),(0,-1), GOLD),
-        ("TEXTCOLOR",    (1,0),(1,-1), LIGHT),
-        ("TEXTCOLOR",    (2,0),(2,-1), MUTED),
-        ("TOPPADDING",   (0,0),(-1,-1), 3),
-        ("BOTTOMPADDING",(0,0),(-1,-1), 3),
+        ("TEXTCOLOR",    (1,0),(1,-1), INK),
+        ("TEXTCOLOR",    (2,0),(2,-1), SUBTLE),
+        ("TOPPADDING",   (0,0),(-1,-1), 4),
+        ("BOTTOMPADDING",(0,0),(-1,-1), 4),
     ]))
     story.append(rt)
 
@@ -209,13 +214,14 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
     it = Table(ing_rows, colWidths=[None, None])
     it.setStyle(TableStyle([
         ("FONTNAME",  (0,0),(-1,0), "Helvetica-Bold"),
-        ("FONTSIZE",  (0,0),(-1,-1), 9),
+        ("FONTSIZE",  (0,0),(-1,-1), 9.5),
         ("TEXTCOLOR", (0,0),(0,0), GREEN),
         ("TEXTCOLOR", (1,0),(1,0), RED),
-        ("TEXTCOLOR", (0,1),(0,-1), LIGHT),
-        ("TEXTCOLOR", (1,1),(1,-1), LIGHT),
-        ("LINEBELOW", (0,0),(-1,0), 0.5, MID),
-        ("TOPPADDING",(0,0),(-1,-1), 2),
+        ("TEXTCOLOR", (0,1),(0,-1), INK),
+        ("TEXTCOLOR", (1,1),(1,-1), INK),
+        ("LINEBELOW", (0,0),(-1,0), 0.8, RULE),
+        ("TOPPADDING",(0,0),(-1,-1), 4),
+        ("BOTTOMPADDING",(0,0),(-1,-1), 4),
     ]))
     story.append(it)
 
@@ -223,8 +229,8 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
     section_title("LIFESTYLE TIPS")
     for tip in data.get("lifestyle_tips", []):
         story.append(Paragraph(
-            f'<font color="#9A9488">◦  </font><font color="#F5F0E8">{tip}</font>',
-            _style("tip", fontSize=9, leading=14, spaceAfter=3)))
+            f'<font color="#C8A96E">-  </font><font color="#2F2A24">{tip}</font>',
+            _style("tip", fontSize=9.5, leading=14, spaceAfter=3)))
 
     # ── Disclaimer ────────────────────────────────────────────
     story.append(Spacer(1, 8*mm))
@@ -234,4 +240,4 @@ def generate_pdf(data: dict, image_path: str | None, output_path: str):
         _style("disc", alignment=TA_CENTER)))
 
     doc.build(story, onFirstPage=_on_page, onLaterPages=_on_page)
-    print(f"[PDF] Saved → {output_path}")
+    print(f"[PDF] Saved -> {output_path}")
